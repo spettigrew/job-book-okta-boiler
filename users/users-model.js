@@ -21,9 +21,9 @@ async function add(user) {
     .returning("*");
 }
 
-function findById(id) {
+function findById(email) {
   return db("users")
-    .selete("id", "email")
-    .where({ id })
+    .select("email", "email")
+    .where({ email })
     .first();
 }
