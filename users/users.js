@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const oktaClient = require("../lib/oktaClient");
 const Users = require("./users-model");
+const db = require("../database/dbConfig");
 
 router.post("/register", async (req, res, next) => {
   if (!req.body) return res.sendStatus(400);
@@ -18,6 +19,8 @@ router.post("/register", async (req, res, next) => {
       }
     }
   };
+
+  // Add a user to our OKTA application
   oktaClient
     .createUser(newUser)
     .then(user => {
@@ -28,6 +31,8 @@ router.post("/register", async (req, res, next) => {
       res.status(400);
       res.send(err);
     });
+
+  // Add that user to the applications database
   try {
     const appUser = {
       firstName: req.body.firstName,
@@ -42,22 +47,16 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
-router.post("/newUser", async (req, res, next) => {
+router.get("/:email", async (req, res) => {
   try {
-    const saved = await Users.add(req.body, "id");
+    const user = await db("users")
+      .where({ email: req.params.email })
+      .first();
 
-    res.status(201).json(saved);
+    res.status(200).json(user);
   } catch (err) {
     next(err);
   }
-});
-
-router.get("/user", (req, res) => {
-  Users.findBy(req.body.email)
-    .then(user => {
-      res.json(user);
-    })
-    .catch(err => res.send(err));
 });
 
 module.exports = router;
