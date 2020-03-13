@@ -3,7 +3,7 @@ const router = express.Router();
 const oktaClient = require("../lib/oktaClient");
 const Users = require("./users-model");
 
-router.post("/register", (req, res, next) => {
+router.post("/register", async (req, res, next) => {
   if (!req.body) return res.sendStatus(400);
   const newUser = {
     profile: {
@@ -28,6 +28,18 @@ router.post("/register", (req, res, next) => {
       res.status(400);
       res.send(err);
     });
+  try {
+    const appUser = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email
+    };
+    const saved = await Users.add(appUser, "id");
+
+    res.status(201).json(saved);
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.post("/newUser", async (req, res, next) => {

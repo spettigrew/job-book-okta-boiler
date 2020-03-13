@@ -5,7 +5,8 @@ exports.up = async knex => {
       .string("email", 128)
       .notNullable()
       .unique();
-    users.string("name", 128).notNullable();
+    users.string("firstName", 128).notNullable();
+    users.string("lastName", 128).notNullable();
   });
 
   await knex.schema.createTable("posts", table => {
